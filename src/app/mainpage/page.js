@@ -1,26 +1,25 @@
-'use client';
 
-import { useState, useEffect } from 'react';
 import { Moon, Sun, ArrowRight, Github, Twitter, Linkedin, Mail } from 'lucide-react';
-
+import Link from 'next/link';
+import Header from '../header/page';
 export default function Mainpage() {
-  const [darkMode, setDarkMode] = useState(false);
+  // const [darkMode, setDarkMode] = useState(false);
 
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    setDarkMode(isDark);
-  }, []);
+  // useEffect(() => {
+  //   const isDark = document.documentElement.classList.contains('dark');
+  //   setDarkMode(isDark);
+  // }, []);
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
+  // const toggleDarkMode = () => {
+  //   const newDarkMode = !darkMode;
+  //   setDarkMode(newDarkMode);
     
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
+  //   if (newDarkMode) {
+  //     document.documentElement.classList.add('dark');
+  //   } else {
+  //     document.documentElement.classList.remove('dark');
+  //   }${darkMode ? 'dark' : ''}
+  // };
 
   const articles = [
     {
@@ -50,9 +49,9 @@ export default function Mainpage() {
   ];
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 `}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
+      {/* <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white font-mono">Abdullah Khalid</h1>
@@ -70,11 +69,11 @@ export default function Mainpage() {
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
          <button className="relative rounded-full p-2 flex justify-center items-center group">
-  {/* Gradient border */}
+ 
   <span className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 p-[1px] 
                    group-hover:animate-spin"></span>
 
-  {/* Inner content */}
+
   <span className="relative flex justify-center items-center bg-white dark:bg-gray-900 rounded-full w-10 h-10">
     <img src="/lumiHead.svg" alt="Description" className="w-10 h-10 rounded-full" />
   </span>
@@ -84,8 +83,8 @@ export default function Mainpage() {
             </div>
           </div>
         </div>
-      </header>
-
+      </header> */}
+  <Header/>
       {/* Main Content */}
       <main className="">
         {/* Hero Section */}
@@ -139,7 +138,7 @@ export default function Mainpage() {
         <section className="max-w-6xl mx-auto px-6 lg:px-8 py-20">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">Featured Article</h2>
           
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
             <div className="md:flex">
               <div className="md:w-2/5">
                 <img 
@@ -158,47 +157,47 @@ export default function Mainpage() {
                 <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
                   Learn about the most common mistakes developers make when using React Testing Library and how to avoid them for better test quality.
                 </p>
-                <button className="flex items-center gap-3 text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors text-lg font-medium">
+                <Link href={"/Blogpost"} className="flex items-center gap-3 text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors text-lg font-medium">
                   Read full article
                   <ArrowRight size={24} />
-                </button>
+                </Link>
               </div>
             </div>
           </div>
         </section>
 
         {/* Articles Grid */}
-        <section className="max-w-6xl mx-auto px-6 lg:px-8 py-20">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {articles.map((article) => (
-              <div key={article.id} className="group cursor-pointer">
-                <div className="relative overflow-hidden rounded-2xl aspect-[4/3] mb-6">
-                  <img 
-                    src={article.image} 
-                    alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {article.id === 1 && (
-                    <div className="absolute bottom-6 left-6">
-                      <span className="bg-black/80 text-white text-sm px-4 py-2 rounded-lg backdrop-blur-sm">
-                        Latest
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-3">
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">
-                    {article.date} • {article.readTime}
-                  </p>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">
-                    {article.title}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+      <section className="max-w-7xl mx-auto px-8 lg:px-12 py-32">
+  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
+    {articles.map((article) => (
+      <Link href={"/Blogpost"} key={article.id} className="group cursor-pointer">
+        <div className="relative overflow-hidden rounded-3xl aspect-[4/3] mb-8">
+          <img 
+            src={article.image} 
+            alt={article.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {article.id === 1 && (
+            <div className="absolute bottom-8 left-8">
+              <span className="bg-black/80 text-white text-lg px-6 py-3 rounded-xl backdrop-blur-sm font-medium">
+                Latest
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="space-y-4">
+          <p className="text-gray-500 dark:text-gray-400 font-semibold text-lg">
+            {article.date} • {article.readTime}
+          </p>
+          <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">
+            {article.title}
+          </h3>
+        </div>
+      </Link>
+    ))}
+  </div>
+</section>
 
    
       </main>
@@ -232,9 +231,11 @@ export default function Mainpage() {
               <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Quick Links</h4>
               <ul className="space-y-4">
                 <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-lg">Blog</a></li>
-                <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-lg">About</a></li>
+                <li><a href="/About" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-lg">About</a></li>
                 <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-lg">Contact</a></li>
                 <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-lg">Privacy</a></li>
+                <li><a href="/Editor" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-lg">Editor</a></li>
+
               </ul>
             </div>
           </div>
