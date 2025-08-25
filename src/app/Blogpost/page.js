@@ -44,7 +44,7 @@ export default function BlogPost() {
   ];
 
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 `}>
       {/* Header */}
       {/* <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
