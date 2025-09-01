@@ -12,7 +12,9 @@ import {
   Image
 } from 'lucide-react';
 import Link from 'next/link';
-// React Quill Component
+import axios from 'axios';
+
+// React Quill Component (unchanged)
 const ReactQuill = ({ value, onChange, placeholder }) => {
   const quillRef = useRef(null);
   const [quillLoaded, setQuillLoaded] = useState(false);
@@ -157,7 +159,13 @@ const ReactQuill = ({ value, onChange, placeholder }) => {
 };
 
 export default function BlogCreationPage() {
+  // UI States
   const [darkMode, setDarkMode] = useState(true);
+  const [isPreview, setIsPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  
+  // Form States
   const [blogData, setBlogData] = useState({
     title: '',
     subtitle: '',
@@ -165,10 +173,30 @@ export default function BlogCreationPage() {
     featuredImage: '',
     tags: [],
     readTime: '',
-    status: 'draft'
+    status: 'draft', // 'draft' | 'published'
+    author: {
+      name: '', // You might want to get this from user context
+      email: '', // You might want to get this from user context
+      id: '' // You might want to get this from user context
+    },
+    seo: {
+      metaTitle: '',
+      metaDescription: '',
+      slug: '' // Auto-generated from title or custom
+    },
+    publishDate: null, // Will be set when publishing
+    category: '', // You might want to add category selection
+    excerpt: '' // Auto-generated from content or custom
   });
+  
   const [newTag, setNewTag] = useState('');
-  const [isPreview, setIsPreview] = useState(false);
+
+  // API Configuration - Replace with your actual endpoint
+  const API_BASE_URL = 'http://localhost:5000'; // CHANGE THIS TO YOUR ACTUAL API URL
+  const API_ENDPOINTS = {
+    createBlog: `${API_BASE_URL}/api/blogs`,
+    uploadImage: `${API_BASE_URL}/api/blog/68b33ab6b5caaff2577de81e/images`
+  };
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -179,6 +207,35 @@ export default function BlogCreationPage() {
       ...prev,
       [field]: value
     }));
+
+    // Auto-generate excerpt if content changes
+    if (field === 'content') {
+      const textContent = value.replace(/<[^>]*>/g, ''); // Strip HTML
+      const excerpt = textContent.substring(0, 160) + (textContent.length > 160 ? '...' : '');
+      setBlogData(prev => ({
+        ...prev,
+        excerpt: excerpt
+      }));
+    }
+
+    // Auto-generate slug if title changes
+    if (field === 'title') {
+      const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+      
+      setBlogData(prev => ({
+        ...prev,
+        seo: {
+          ...prev.seo,
+          slug: slug,
+          metaTitle: value // Also set as default meta title
+        }
+      }));
+    }
   };
 
   const addTag = () => {
@@ -198,36 +255,163 @@ export default function BlogCreationPage() {
     }));
   };
 
-  const handleSave = async (status = 'draft') => {
-    const dataToSave = {
-      ...blogData,
-      status,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    // Here you would call your API
-    console.log('Saving blog:', dataToSave);
-    
-    // Example API call:
-    // try {
-    //   const response = await fetch('/api/blogs', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(dataToSave)
-    //   });
-    //   const result = await response.json();
-    //   console.log('Blog saved:', result);
-    // } catch (error) {
-    //   console.error('Error saving blog:', error);
-    // }
-  };
+  // Image Upload Function
+ const handleImageUpload = async (input) => {
+  try {
+    setIsLoading(true);
 
-  const handleImageUpload = () => {
-    // Handle image upload logic
-    console.log('Image upload clicked');
+    // Check if input is a file or a URL
+    if (input instanceof File) {
+      // It's a real file
+      const formData = new FormData();
+      formData.append('image', input);
+      formData.append('folder', 'blog-images');
+
+      const response = await axios.post(API_ENDPOINTS.uploadImage, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // <-- multipart for files
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjQyMjI5ZDRmYzQwZDI2ZjVlZTgxNSIsImlhdCI6MTc1Njc0MjQxMSwiZXhwIjoxNzU2ODI4ODExfQ.WASeHzF4IVjyDVEPHqRs1SdunLBoH6ygbz7gqJ5MKgc',
+        },
+      });
+
+      if (response.data.imageUrl) {
+        handleInputChange('featuredImage', response.data.imageUrl);
+        setSaveMessage('Image uploaded successfully!');
+      }
+    } else if (typeof input === 'string') {
+      // It's a URL
+      handleInputChange('featuredImage', input);
+      setSaveMessage('Image URL set successfully!');
+    } else {
+      throw new Error('Invalid input type. Must be a File or URL string.');
+    }
+
+    setTimeout(() => setSaveMessage(''), 3000);
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    setSaveMessage('Failed to upload image. Please try again.');
+    setTimeout(() => setSaveMessage(''), 3000);
+  } finally {
+    setIsLoading(false);
+  }
+};
+const handleDeleteImage=async(id)=>{
+  try{
+    let response=await axios.delete(`http://localhost:5000/api/${id}/images/`,{
+      headers: {
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjQyMjI5ZDRmYzQwZDI2ZjVlZTgxNSIsImlhdCI6MTc1Njc0MjQxMSwiZXhwIjoxNzU2ODI4ODExfQ.WASeHzF4IVjyDVEPHqRs1SdunLBoH6ygbz7gqJ5MKgc',
+      },
+    });
+
+    if (response.data.success) {
+      setSaveMessage('Image deleted successfully!');
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    setSaveMessage('Failed to delete image. Please try again.');
+  }finally{
+    handleInputChange('featuredImage', '')
+  }
+}
+  // Main Save Function
+  const handleSave = async (status = 'draft') => {
+    try {
+      setIsLoading(true);
+      setSaveMessage('');
+
+      // Validate required fields
+      if (!blogData.title.trim()) {
+        setSaveMessage('Title is required!');
+        setTimeout(() => setSaveMessage(''), 3000);
+        return;
+      }
+
+      if (!blogData.content.trim()) {
+        setSaveMessage('Content is required!');
+        setTimeout(() => setSaveMessage(''), 3000);
+        return;
+      }
+
+      // Prepare the data to send
+      const dataToSend = {
+        // Basic blog information
+        title: blogData.title.trim(),
+        subtitle: blogData.subtitle.trim(),
+        content: blogData.content,
+        excerpt: blogData.excerpt,
+        featuredImage: blogData.featuredImage,
+        tags: blogData.tags,
+        readTime: blogData.readTime,
+        category: blogData.category,
+        
+        // Status and dates
+        status: status,
+        publishDate: status === 'published' ? new Date().toISOString() : null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        
+        // SEO data
+        seo: {
+          metaTitle: blogData.seo.metaTitle || blogData.title,
+          metaDescription: blogData.seo.metaDescription || blogData.excerpt,
+          slug: blogData.seo.slug
+        },
+        
+        // Author information (you might get this from user context/auth)
+        author: {
+          name: blogData.author.name || 'Anonymous',
+          email: blogData.author.email,
+          id: blogData.author.id
+        },
+        
+        // Additional metadata
+        wordCount: blogData.content.replace(/<[^>]*>/g, '').split(' ').length,
+        language: 'en', // You might want to make this dynamic
+        featured: false, // You might want to add a toggle for this
+        allowComments: true, // You might want to add a toggle for this
+      };
+
+      console.log('Sending blog data:', dataToSend);
+
+      const response = await axios.post("http://localhost:5000/api/blog", dataToSend, {
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjQyMjI5ZDRmYzQwZDI2ZjVlZTgxNSIsImlhdCI6MTc1Njc0NTg4MCwiZXhwIjoxNzU2ODMyMjgwfQ.FDpfVvR0UuZLdY-f7x0MpsowBTSSRPeIAxpOcsMjbXI"
+          // Add authentication headers if needed
+          // 'Authorization': `Bearer ${userToken}`,
+        },
+      });
+
+      if (response.data.success) {
+        setSaveMessage(`Blog ${status === 'published' ? 'published' : 'saved as draft'} successfully!`);
+        
+        // Optionally update the blogData with the response (like ID, etc.)
+        if (response.data.blog) {
+          setBlogData(prev => ({
+            ...prev,
+            id: response.data.blog.id,
+            status: status
+          }));
+        }
+      }
+
+    } catch (error) {
+      console.error('Error saving blog:', error);
+      
+      if (error.response) {
+        // Server responded with error status
+        setSaveMessage(`Error: ${error.response.data.message || 'Failed to save blog'}`);
+      } else if (error.request) {
+        // Request was made but no response received
+        setSaveMessage('Network error. Please check your connection.');
+      } else {
+        // Something else happened
+        setSaveMessage('An unexpected error occurred.');
+      }
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setSaveMessage(''), 5000);
+    }
   };
 
   return (
@@ -245,6 +429,17 @@ export default function BlogCreationPage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Save Message */}
+              {saveMessage && (
+                <div className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  saveMessage.includes('Error') || saveMessage.includes('Failed') || saveMessage.includes('required')
+                    ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                    : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                }`}>
+                  {saveMessage}
+                </div>
+              )}
+
               <button
                 onClick={() => setIsPreview(!isPreview)}
                 className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors rounded-lg"
@@ -255,17 +450,19 @@ export default function BlogCreationPage() {
               
               <button
                 onClick={() => handleSave('draft')}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white hover:bg-gray-600 transition-colors rounded-lg"
+                disabled={isLoading}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white hover:bg-gray-600 transition-colors rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save size={16} />
-                Save Draft
+                {isLoading ? 'Saving...' : 'Save Draft'}
               </button>
               
               <button
                 onClick={() => handleSave('published')}
-                className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-colors rounded-lg font-medium"
+                disabled={isLoading}
+                className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-colors rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Publish
+                {isLoading ? 'Publishing...' : 'Publish'}
               </button>
 
               <button
@@ -330,7 +527,7 @@ export default function BlogCreationPage() {
                         className="w-full h-64 object-cover"
                       />
                       <button
-                        onClick={() => handleInputChange('featuredImage', '')}
+                        onClick={() =>handleDeleteImage(featuredImage.imageId)}
                         className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                       >
                         <X size={16} />
@@ -338,7 +535,18 @@ export default function BlogCreationPage() {
                     </div>
                   ) : (
                     <div 
-                      onClick={handleImageUpload}
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            handleImageUpload(file);
+                          }
+                        };
+                        input.click();
+                      }}
                       className="border-2 border-dashed border-gray-600 rounded-xl p-12 text-center cursor-pointer hover:border-gray-500 transition-colors"
                     >
                       <Upload size={48} className="mx-auto text-gray-400 mb-4" />
@@ -405,7 +613,7 @@ export default function BlogCreationPage() {
                   Estimated Read Time
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="readTime"
                   value={blogData.readTime}
                   onChange={(e) => handleInputChange('readTime', e.target.value)}
