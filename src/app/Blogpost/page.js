@@ -45,35 +45,7 @@ export default function BlogPost() {
 
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 `}>
-      {/* Header */}
-      {/* <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white font-mono">Abdullah Khalid</h1>
-            
-            <nav className="hidden md:flex items-center space-x-10">
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium">Blog</a>
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium">About</a>
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium">Contact</a>
-            </nav>
-
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={toggleDarkMode}
-                className="p-3 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
-              >
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
-              <button className="relative rounded-full p-2 flex justify-center items-center group">
-                <span className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 p-[1px] group-hover:animate-spin"></span>
-                <span className="relative flex justify-center items-center bg-white dark:bg-gray-900 rounded-full w-10 h-10">
-                  <img src="/lumiHead.svg" alt="Profile" className="w-10 h-10 rounded-full" />
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header> */}
+      
     <Header/>
       {/* Main Content */}
       <main className="pt-20">

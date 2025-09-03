@@ -50,9 +50,9 @@ import Link from 'next/link';
                    group-hover:animate-spin"></span>
 
   {/* Inner content */}
-  <span className="relative flex justify-center items-center bg-white dark:bg-gray-900 rounded-full w-10 h-10">
+  <Link href='/Signup' className="relative flex justify-center items-center bg-white dark:bg-gray-900 rounded-full w-10 h-10">
     <img src="/lumiHead.svg" alt="Description" className="w-10 h-10 rounded-full" />
-  </span>
+  </Link>
 </button>
 
 
